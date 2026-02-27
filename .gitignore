@@ -1,0 +1,30 @@
+# Virtual environments
+.venv*/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Word temp files
+~$*.doc
+~$*.docx
+
+# Test output documents (optional — remove if you want to track them)
+*_marked.docx
+*_marked.doc
+
+# IDE
+.vscode/settings.json
+.idea/
