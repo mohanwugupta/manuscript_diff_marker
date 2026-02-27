@@ -28,8 +28,8 @@ Designed for researchers who need a clean, portable marked-up manuscript that di
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/color_docx_changes.git
-cd color_docx_changes
+git clone https://github.com/mohanwugupta/manuscript_diff_marker.git
+cd manuscript_diff_marker
 
 # 2. Create and activate a virtual environment (recommended)
 python -m venv .venv
@@ -89,6 +89,27 @@ python color_docx_changes.py \
 - Tables and text boxes are not currently diffed (only main-body paragraphs).
 - Structural changes (many paragraphs reordered at once) may produce whole-paragraph coloring instead of word-level coloring.
 - `.doc` auto-conversion requires Microsoft Word on Windows.
+
+---
+
+## macOS / Linux notes
+
+The tool works fully on macOS and Linux for `.docx` files — all core dependencies (`python-docx`, `difflib`, `lxml`) are cross-platform.
+
+The only limitation is **legacy `.doc` files**: the auto-conversion feature relies on Microsoft Word's COM interface via `pywin32`, which is Windows-only. On macOS or Linux, convert `.doc` files to `.docx` manually before running the script:
+
+**Option 1 — Microsoft Word (macOS):**
+1. Open the `.doc` file in Word.
+2. Go to **File → Save As**.
+3. Choose **Word Document (.docx)** as the format and save.
+
+**Option 2 — LibreOffice (macOS / Linux, free):**
+```bash
+# Install LibreOffice, then run:
+soffice --headless --convert-to docx "your_file.doc"
+```
+
+Once you have `.docx` files, run the script exactly as described in the [Usage](#usage) section above.
 
 ---
 
