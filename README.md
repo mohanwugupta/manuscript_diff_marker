@@ -117,8 +117,7 @@ Once you have `.docx` files, run the script exactly as described in the [Usage](
 
 Bug reports, feature requests, and suggestions are welcome! If you encounter an issue or have an idea to improve the tool:
 
-1. Go to the [Issues](https://github.com/mohanwugupta/manuscript_diff_marker
-/issues) tab on GitHub.
+1. Go to the [Issues](https://github.com/mohanwugupta/manuscript_diff_marker/issues) tab on GitHub.
 2. Click **New Issue**.
 3. Choose a descriptive title and include as much detail as possible:
    - For **bugs**: describe the problem, include the command you ran, and attach (or describe) the input files if possible.
