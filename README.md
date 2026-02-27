@@ -1,4 +1,4 @@
-# color_docx_changes
+# manuscript_diff_marker
 
 A Python command-line tool that highlights text changes between two `.docx` (or legacy `.doc`) files by coloring the changed words directly in the revised document — without using Word's Track Changes feature.
 
@@ -89,6 +89,22 @@ python color_docx_changes.py \
 - Tables and text boxes are not currently diffed (only main-body paragraphs).
 - Structural changes (many paragraphs reordered at once) may produce whole-paragraph coloring instead of word-level coloring.
 - `.doc` auto-conversion requires Microsoft Word on Windows.
+
+---
+
+## Contributing & Feedback
+
+Bug reports, feature requests, and suggestions are welcome! If you encounter an issue or have an idea to improve the tool:
+
+1. Go to the [Issues](https://github.com/mohanwugupta/manuscript_diff_marker
+/issues) tab on GitHub.
+2. Click **New Issue**.
+3. Choose a descriptive title and include as much detail as possible:
+   - For **bugs**: describe the problem, include the command you ran, and attach (or describe) the input files if possible.
+   - For **feature requests**: describe what you'd like the tool to do and why it would be useful.
+4. Submit the issue — I'll try to respond and incorporate improvements in future updates.
+
+Pull requests are also welcome for those who'd like to contribute code directly.
 
 ---
 
