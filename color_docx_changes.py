@@ -8,13 +8,8 @@ Color changed text in a revised .docx relative to an original .docx.
 - Replaced paragraphs: colors only the inserted/replaced spans at the word level.
 
 Usage:
-  python color_docx_changes.py \
-    --original "old.docx" \
-    --revised  "new.docx" \
-    --out      "new_MARKED.docx" \
-    --rgb      "CC0000"
-    
-    .venv313\\Scripts\\python.exe color_docx_changes.py --original "C:/Users/sheik/Box/Manuscripts/Semantic Relatedness TE/npj sci learn/Semantic_TE_NPJ_Final110825.docx" --revised  "C:/Users/sheik/Box/Manuscripts/Semantic Relatedness TE/npj sci learn/revision/Semantic_TE_NPJ_Final_Revision022026.docx" --out      "C:/Users/sheik/Box/Manuscripts/Semantic Relatedness TE/npj sci learn/revision/Semantic_TE_NPJ_Final_Revision022026_marked.docx" --rgb      "CC0000" 
+.venv313/Scripts/python.exe color_docx_changes.py --original "old.docx" --revised  "new.docx" --out "new_MARKED.docx" --rgb "CC0000"
+  
 """
 
 import argparse
