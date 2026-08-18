@@ -132,6 +132,70 @@ def build_compacted_index(texts: List[str]) -> Tuple[List[str], List[int]]:
     return compacted, mapping
 
 
+def _para_similarity(a: str, b: str) -> float:
+    """Character-level similarity in [0, 1] between two normalized paragraphs."""
+    if not a or not b:
+        return 0.0
+    sm = SequenceMatcher(None, a, b, autojunk=False)
+    if sm.real_quick_ratio() < 0.3:
+        return 0.0
+    return sm.ratio()
+
+
+def pair_paragraphs_by_similarity(
+    orig_block: List[str],
+    rev_block: List[str],
+    threshold: float = 0.5
+) -> Tuple[List[Tuple[int, int]], List[int]]:
+    """
+    Greedily pair paragraphs between two unequal/unequally-ordered blocks by
+    similarity (highest-scoring pairs first, each index used at most once).
+
+    Returns (pairs, unmatched_rev_indices) where pairs are
+    (orig_block_index, rev_block_index) tuples.
+
+    Unmatched revised paragraphs get a second chance: if they still resemble
+    an already-paired original above `threshold` (e.g. one original paragraph
+    was split into two), they are paired with it too — the word-level diff
+    will then only color the genuinely new words.
+    """
+    sims = []
+    for oi, o in enumerate(orig_block):
+        for ri, r in enumerate(rev_block):
+            s = _para_similarity(o, r)
+            if s >= threshold:
+                sims.append((s, oi, ri))
+    sims.sort(key=lambda x: x[0], reverse=True)
+
+    used_o: set = set()
+    used_r: set = set()
+    pairs: List[Tuple[int, int]] = []
+    for s, oi, ri in sims:
+        if oi in used_o or ri in used_r:
+            continue
+        used_o.add(oi)
+        used_r.add(ri)
+        pairs.append((oi, ri))
+
+    unmatched_rev = []
+    for ri in range(len(rev_block)):
+        if ri in used_r:
+            continue
+        # Second chance: reuse an original if similarity is still high
+        # (handles one original paragraph being split into two revised ones).
+        best_s, best_oi = threshold, None
+        for oi, o in enumerate(orig_block):
+            s = _para_similarity(o, rev_block[ri])
+            if s > best_s:
+                best_s, best_oi = s, oi
+        if best_oi is not None:
+            pairs.append((best_oi, ri))
+        else:
+            unmatched_rev.append(ri)
+
+    return pairs, unmatched_rev
+
+
 # ---------------------------
 # Diff + Marking logic
 # ---------------------------
@@ -328,27 +392,31 @@ def mark_revised_document(
                 n_inserted += 1
 
         elif tag == "replace":
-            # Try to pair up paragraphs one-to-one when counts match;
-            # otherwise, color whole revised paragraphs in this block.
-            if len(orig_idxs) == len(rev_idxs) and len(rev_idxs) > 0:
-                for oidx, ridx in zip(orig_idxs, rev_idxs):
-                    otext = orig_texts[oidx]
-                    rtext = rev_texts[ridx]
-                    # Skip formatting-only differences (text is identical)
-                    if normalize(otext) == normalize(rtext):
-                        n_skipped += 1
-                        continue
-                    rewrite_paragraph_with_wordlevel_diff(
-                        rev_doc.paragraphs[ridx],
-                        orig_text=otext,
-                        rev_text=rtext,
-                        change_color=change_color
-                    )
-                    n_replaced += 1
-            else:
-                for ridx in rev_idxs:
-                    color_entire_paragraph(rev_doc.paragraphs[ridx], change_color)
-                    n_replaced += 1
+            # Pair paragraphs within the block by similarity (handles unequal
+            # counts, reordering, merging and splitting). Well-matched pairs
+            # get word-level marking; genuinely new paragraphs are colored
+            # entirely.
+            o_block = [normalize(orig_texts[i]) for i in orig_idxs]
+            r_block = [normalize(rev_texts[i]) for i in rev_idxs]
+            pairs, unmatched_rev = pair_paragraphs_by_similarity(o_block, r_block)
+
+            for oi, ri in pairs:
+                oidx, ridx = orig_idxs[oi], rev_idxs[ri]
+                # Skip formatting-only differences (text is identical)
+                if o_block[oi] == r_block[ri]:
+                    n_skipped += 1
+                    continue
+                rewrite_paragraph_with_wordlevel_diff(
+                    rev_doc.paragraphs[ridx],
+                    orig_text=orig_texts[oidx],
+                    rev_text=rev_texts[ridx],
+                    change_color=change_color
+                )
+                n_replaced += 1
+
+            for ri in unmatched_rev:
+                color_entire_paragraph(rev_doc.paragraphs[rev_idxs[ri]], change_color)
+                n_inserted += 1
 
         elif tag == "delete":
             # Only in original, nothing to mark in revised
